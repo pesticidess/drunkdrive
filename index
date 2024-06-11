@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Light Effect on Blurry Overlay</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            background: url('your-image.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            pointer-events: none;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <canvas id="lightCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('lightCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let mouse = {
+            x: canvas.width / 2,
+            y: canvas.height / 2
+        };
+
+        let light = {
+            x: canvas.width / 2,
+            y: canvas.height / 2
+        };
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        canvas.addEventListener('mousemove', (event) => {
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+        });
+
+        function lerp(start, end, amt) {
+            return (1 - amt) * start + amt * end;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update the light position to move towards the mouse position
+            light.x = lerp(light.x, mouse.x, 0.1);
+            light.y = lerp(light.y, mouse.y, 0.1);
+
+            // Draw the clear circle in the blurry overlay
+            let gradient = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, 100);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(light.x, light.y, 100, 0, Math.PI * 2, false);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+</body>
+</html>
