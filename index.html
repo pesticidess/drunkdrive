@@ -3,15 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouse Light Effect on Blurry Overlay</title>
+    <title>Toggle Blur Effect for Awareness</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             overflow: hidden;
             height: 100%;
-            background: url('your-image.jpg') no-repeat center center fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('night_drive.jpg') no-repeat center center fixed;
             background-size: cover;
+            z-index: -1;
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            font-size: 30px;
+            color: wheat;
+            padding: 20px;
+            font-family: Arial, Helvetica, sans-serif;
         }
         .overlay {
             position: absolute;
@@ -19,74 +39,44 @@
             left: 0;
             width: 100%;
             height: 100%;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(8px);
             pointer-events: none;
+            z-index: 2;
         }
-        canvas {
-            display: block;
+        .toggle-button {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 2;
         }
     </style>
 </head>
 <body>
-    <div class="overlay"></div>
-    <canvas id="lightCanvas"></canvas>
+    <div class="background"></div>
+    <div class="content">
+        <p>Driving under the influence of alcohol can severely impair your ability to see and react to your surroundings. Always drive sober.</p>
+    </div>
+    <div class="overlay" id="overlay"></div>
+    <button class="toggle-button" id="toggleButton">Toggle Blur</button>
     <script>
-        const canvas = document.getElementById('lightCanvas');
-        const ctx = canvas.getContext('2d');
+        const overlay = document.getElementById('overlay');
+        const toggleButton = document.getElementById('toggleButton');
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let mouse = {
-            x: canvas.width / 2,
-            y: canvas.height / 2
-        };
-
-        let light = {
-            x: canvas.width / 2,
-            y: canvas.height / 2
-        };
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        toggleButton.addEventListener('click', () => {
+            if (overlay.style.backdropFilter === 'blur(8px)') {
+                overlay.style.backdropFilter = 'none';
+            } else {
+                overlay.style.backdropFilter = 'blur(8px)';
+            }
         });
 
-        canvas.addEventListener('mousemove', (event) => {
-            mouse.x = event.clientX;
-            mouse.y = event.clientY;
-        });
-
-        function lerp(start, end, amt) {
-            return (1 - amt) * start + amt * end;
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Update the light position to move towards the mouse position
-            light.x = lerp(light.x, mouse.x, 0.1);
-            light.y = lerp(light.y, mouse.y, 0.1);
-
-            // Draw the clear circle in the blurry overlay
-            let gradient = ctx.createRadialGradient(light.x, light.y, 0, light.x, light.y, 100);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.fillStyle = gradient;
-            ctx.beginPath();
-            ctx.arc(light.x, light.y, 100, 0, Math.PI * 2, false);
-            ctx.fill();
-            ctx.globalCompositeOperation = 'source-over';
-
-            requestAnimationFrame(draw);
-        }
-
-        draw();
+        // Initially blur the overlay
+        overlay.style.backdropFilter = 'blur(8px)';
     </script>
 </body>
 </html>
